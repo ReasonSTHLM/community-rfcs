@@ -17,7 +17,7 @@
     
             
                 
-                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism.css">
                 
             
                 
@@ -208,54 +208,54 @@ the concepts they embody.</p>
 </blockquote>
 <p>Say we have an <code>option</code> type defined, allowing us to represent the <em>presence</em> or
 the <em>absence</em> of a value.</p>
-<pre><code class="lang-reason">type option(&apos;a) =
-  | Some(&apos;a)
-  | None;
+<pre class="language-"><code class="lang-reason"><span class="token keyword">type</span> option<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span> <span class="token operator">=</span>
+  <span class="token operator">|</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span>
+  <span class="token operator">|</span> <span class="token constructor variable">None</span><span class="token punctuation">;</span>
 </code></pre>
 <p>A value such as <code>Some(1)</code>, of type <code>option(int)</code>, will represent the <em>presence</em>
 of some number, such as 1. A value of type <code>None</code>, of type <code>option(int)</code> in this
 case, will represent the <em>absence</em> of a number.</p>
 <p>In order to manipulate the contents of an <code>option(&apos;a)</code> value, we can use the
 <code>switch</code> operator:</p>
-<pre><code class="lang-reason">let add_1 = x =&gt;
-  switch(x) {
-  | Some(y) =&gt; y + 1
-  };
+<pre class="language-"><code class="lang-reason"><span class="token keyword">let</span> add_1 <span class="token operator">=</span> x <span class="token operator">=&gt;</span>
+  <span class="token keyword">switch</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token operator">|</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>y<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> y <span class="token operator">+</span> <span class="token number">1</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <p>As we started defining the function above, everything looked great. Until the
 compiler warned us that we were missing <em>branches</em> in that switch. We missed a
 the <code>None</code> constructor!</p>
 <p>So we go back an add it:</p>
-<pre><code class="lang-reason">let add_1 = x =&gt;
-  switch(x) {
-  | Some(y) =&gt; y + 1   
-  | None =&gt; ??? + 1
-  }
+<pre class="language-"><code class="lang-reason"><span class="token keyword">let</span> add_1 <span class="token operator">=</span> x <span class="token operator">=&gt;</span>
+  <span class="token keyword">switch</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token operator">|</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>y<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> y <span class="token operator">+</span> <span class="token number">1</span>   
+  <span class="token operator">|</span> <span class="token constructor variable">None</span> <span class="token operator">=&gt;</span> <span class="token operator">?</span><span class="token operator">?</span><span class="token operator">?</span> <span class="token operator">+</span> <span class="token number">1</span>
+  <span class="token punctuation">}</span>
 </code></pre>
 <p>But we realize that we have nothing to add 1 to! We could simply return <code>0</code> but
 that would be misleading, since callind <code>maybe_add_1(Some(-1))</code> would also
 return <code>0</code>.</p>
 <p>Perhaps we want to simply add 1 if there is <em>some</em> number, and if there isn&apos;t
 one we just say that we didn&apos;t get any number.</p>
-<pre><code class="lang-reason">let maybe_add_1 = x =&gt;
-  switch(x) {
-  | Some(x) =&gt; Some(x + 1) /* if there is a number, add 1 to it */
-  | None =&gt; None           /* if there isn&apos;t a number, simply return none */
-  };
+<pre class="language-"><code class="lang-reason"><span class="token keyword">let</span> maybe_add_1 <span class="token operator">=</span> x <span class="token operator">=&gt;</span>
+  <span class="token keyword">switch</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token operator">|</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>x <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">/* if there is a number, add 1 to it */</span>
+  <span class="token operator">|</span> <span class="token constructor variable">None</span> <span class="token operator">=&gt;</span> <span class="token constructor variable">None</span>           <span class="token comment" spellcheck="true">/* if there isn&apos;t a number, simply return none */</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <p>This idiom is quite common, and we use it quite frequently with types that are
 used as <em>containers</em>. That is, types that simply hold some data in them.</p>
 <p>Let&apos;s make it more reusable so we can reuse it for a function that will take 1
 from a number: <code>substract_1</code></p>
-<pre><code class="lang-reason">let maybe_run_f_on_contents = (f, x) =&gt;
-  switch(x) {
-  | Some(y) =&gt; Some(f(y))
-  | None =&gt; None 
-  };
+<pre class="language-"><code class="lang-reason"><span class="token keyword">let</span> maybe_run_f_on_contents <span class="token operator">=</span> <span class="token punctuation">(</span>f<span class="token punctuation">,</span> x<span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+  <span class="token keyword">switch</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token operator">|</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>y<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>f<span class="token punctuation">(</span>y<span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token operator">|</span> <span class="token constructor variable">None</span> <span class="token operator">=&gt;</span> <span class="token constructor variable">None</span> 
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <p>Great! Now we can rewrite both those functions as:</p>
-<pre><code class="lang-reason">let maybe_add_1 = maybe_run_f_on_contents( x =&gt; x + 1 );
-let maybe_sub_1 = maybe_run_f_on_contents( x =&gt; x - 1 );
+<pre class="language-"><code class="lang-reason"><span class="token keyword">let</span> maybe_add_1 <span class="token operator">=</span> maybe_run_f_on_contents<span class="token punctuation">(</span> x <span class="token operator">=&gt;</span> x <span class="token operator">+</span> <span class="token number">1</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">let</span> maybe_sub_1 <span class="token operator">=</span> maybe_run_f_on_contents<span class="token punctuation">(</span> x <span class="token operator">=&gt;</span> x <span class="token operator">-</span> <span class="token number">1</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>Much cleaner. </p>
 <p>The truth is that this pattern is so common that it even has a name. It&apos;s name
@@ -269,31 +269,31 @@ after all.</p>
 that help us build modules so that they are always type-safe, well-behaved, and
 can be optimized by the compiler.</p>
 <p>Let&apos;s try one of them, the <code>Monad.Make</code> functor.</p>
-<pre><code class="lang-reason">open Belt.Interfaces
+<pre class="language-"><code class="lang-reason"><span class="token keyword">open</span> <span class="token class-name">Belt</span><span class="token punctuation">.</span><span class="token constructor variable">Interfaces</span>
 
-module Option = {
-  type option(&apos;a) =
-    | Some(&apos;a)
-    | None;
+<span class="token keyword">module</span> <span class="token constructor variable">Option</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token keyword">type</span> option<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span> <span class="token operator">=</span>
+    <span class="token operator">|</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span>
+    <span class="token operator">|</span> <span class="token constructor variable">None</span><span class="token punctuation">;</span>
 
-  include Monad.Make(
-      {
-        type t(&apos;a) = option(&apos;a);
+  <span class="token keyword">include</span> <span class="token class-name">Monad</span><span class="token punctuation">.</span><span class="token constructor variable">Make</span><span class="token punctuation">(</span>
+      <span class="token punctuation">{</span>
+        <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span> <span class="token operator">=</span> option<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-        let return = x =&gt; Some(x); /* teach the functor how to create a value
-                                      of your type */
+        <span class="token keyword">let</span> return <span class="token operator">=</span> x <span class="token operator">=&gt;</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">/* teach the functor how to create a value
+                                      of your type */</span>
 
-        let bind = (o, f) =&gt;       /* and teach it what to do with a function */
-          switch (o) {             /* that uses the current contents but will */
-          | None =&gt; None           /* return another value of your type       */
-          | Some(x) =&gt; f(x)
-          };
-      },
-    ): Monad.S with type t(&apos;a) := option(&apos;a);
-}; 
+        <span class="token keyword">let</span> bind <span class="token operator">=</span> <span class="token punctuation">(</span>o<span class="token punctuation">,</span> f<span class="token punctuation">)</span> <span class="token operator">=&gt;</span>       <span class="token comment" spellcheck="true">/* and teach it what to do with a function */</span>
+          <span class="token keyword">switch</span> <span class="token punctuation">(</span>o<span class="token punctuation">)</span> <span class="token punctuation">{</span>             <span class="token comment" spellcheck="true">/* that uses the current contents but will */</span>
+          <span class="token operator">|</span> <span class="token constructor variable">None</span> <span class="token operator">=&gt;</span> <span class="token constructor variable">None</span>           <span class="token comment" spellcheck="true">/* return another value of your type       */</span>
+          <span class="token operator">|</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> f<span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+          <span class="token punctuation">}</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Monad</span><span class="token punctuation">.</span><span class="token constructor variable">S</span> <span class="token keyword">with</span> <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span> <span class="token operator">:=</span> option<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span> 
 
-let maybe_add_1 = Option.map( x =&gt; x + 1 );
-let maybe_sub_1 = Option.map( x =&gt; x - 1 );
+<span class="token keyword">let</span> maybe_add_1 <span class="token operator">=</span> <span class="token class-name">Option</span><span class="token punctuation">.</span>map<span class="token punctuation">(</span> x <span class="token operator">=&gt;</span> x <span class="token operator">+</span> <span class="token number">1</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">let</span> maybe_sub_1 <span class="token operator">=</span> <span class="token class-name">Option</span><span class="token punctuation">.</span>map<span class="token punctuation">(</span> x <span class="token operator">=&gt;</span> x <span class="token operator">-</span> <span class="token number">1</span> <span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>Ahh, even better!</p>
 <p>Now that this type we created works just like one from the standard library,we 
@@ -307,11 +307,11 @@ is a refined proposal of the ideas and code included there.</p>
 <p>We begin by defining a module of common interfaces, <code>Belt.Interfaces</code>, that will
 re-export a set of <em>functors</em> that allow for quickly and safely constructing
 modules.</p>
-<pre><code class="lang-reason">/* file belt_Interfaces.ml */ 
+<pre class="language-"><code class="lang-reason"><span class="token comment" spellcheck="true">/* file belt_Interfaces.ml */</span> 
 
-module Monad = Belt_Monad;
-module Alternative = Belt_Alternative;
-/* the way we include and re-export these modules is subject to change */
+<span class="token keyword">module</span> <span class="token constructor variable">Monad</span> <span class="token operator">=</span> <span class="token constructor variable">Belt_Monad</span><span class="token punctuation">;</span>
+<span class="token keyword">module</span> <span class="token constructor variable">Alternative</span> <span class="token operator">=</span> <span class="token constructor variable">Belt_Alternative</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">/* the way we include and re-export these modules is subject to change */</span>
 </code></pre>
 <p>This will allow developers to quickly <code>open Belt.Interfaces</code> and have access to 
 a collection of useful abstractions.</p>
@@ -321,52 +321,52 @@ absolute minimum necessary information needed to construct the full module, and
 a <code>Make</code> functor that will take as an input that minimum module, and will create
 an instance for the indicated type(s).</p>
 <p>Sample module skeleton:</p>
-<pre><code class="lang-reason">module type Base = {
-  /* the absolutely minimum module required to create an instance of this interface */
-  type t(&apos;a);
-};
+<pre class="language-"><code class="lang-reason"><span class="token keyword">module</span> <span class="token keyword">type</span> <span class="token constructor variable">Base</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token comment" spellcheck="true">/* the absolutely minimum module required to create an instance of this interface */</span>
+  <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-module type S = {
-  /* the complete interface that will be created from the Base module */
-  type t(&apos;a);
-};
+<span class="token keyword">module</span> <span class="token keyword">type</span> <span class="token constructor variable">S</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token comment" spellcheck="true">/* the complete interface that will be created from the Base module */</span>
+  <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-module Make = (M: Base): S =&gt; {
-  /* the functor that will create an instance of S from a Base module */ 
-  type t(&apos;a) = M.t(&apos;a);
-};
+<span class="token keyword">module</span> <span class="token constructor variable">Make</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token constructor variable">M</span><span class="token punctuation">:</span> <span class="token constructor variable">Base</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token constructor variable">S</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token comment" spellcheck="true">/* the functor that will create an instance of S from a Base module */</span> 
+  <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token class-name">M</span><span class="token punctuation">.</span>t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <h3 id="the-monad-interface-and-functor">The Monad Interface and Functor</h3>
 <p>As part of this proposal, a set of very common functions including <code>map</code> and
 <code>flatMap</code>, are presented under the name of <code>Monad</code>. Full signature below:</p>
-<pre><code class="lang-reason">module type S = {
-  /*
+<pre class="language-"><code class="lang-reason"><span class="token keyword">module</span> <span class="token keyword">type</span> <span class="token constructor variable">S</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token comment" spellcheck="true">/*
     Canonical names, which can certainly be dropped in favor of the user-friendly
     ones.
-   */
+   */</span>
 
-  /* create a value of this type */
-  let return: &apos;a =&gt; t(&apos;a);
+  <span class="token comment" spellcheck="true">/* create a value of this type */</span>
+  <span class="token keyword">let</span> return<span class="token punctuation">:</span> <span class="token operator">&apos;</span>a <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /* transform the contents and collapse it into a new value of this type */
-  let bind: (t(&apos;a), &apos;a =&gt; t(&apos;b)) =&gt; t(&apos;b);
+  <span class="token comment" spellcheck="true">/* transform the contents and collapse it into a new value of this type */</span>
+  <span class="token keyword">let</span> bind<span class="token punctuation">:</span> <span class="token punctuation">(</span>t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&apos;</span>a <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>b<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>b<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /* collapse a value that is wrapped twice, such as Some(Some(1)) into Some(1) */
-  let join: t(t(&apos;a)) =&gt; t(&apos;a);
+  <span class="token comment" spellcheck="true">/* collapse a value that is wrapped twice, such as Some(Some(1)) into Some(1) */</span>
+  <span class="token keyword">let</span> join<span class="token punctuation">:</span> t<span class="token punctuation">(</span>t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /*
+  <span class="token comment" spellcheck="true">/*
      User-friendly named operations
-   */
+   */</span>
 
-  /* create a value of this type: Option.of(1) */
-  let of: &apos;a =&gt; t(&apos;a);
+  <span class="token comment" spellcheck="true">/* create a value of this type: Option.of(1) */</span>
+  <span class="token keyword">let</span> <span class="token keyword">of</span><span class="token punctuation">:</span> <span class="token operator">&apos;</span>a <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /* apply ~f to the value in this type */
-  let map: (t(&apos;a), ~f: &apos;a =&gt; &apos;b) =&gt; t(&apos;b);
+  <span class="token comment" spellcheck="true">/* apply ~f to the value in this type */</span>
+  <span class="token keyword">let</span> map<span class="token punctuation">:</span> <span class="token punctuation">(</span>t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">~</span>f<span class="token punctuation">:</span> <span class="token operator">&apos;</span>a <span class="token operator">=&gt;</span> <span class="token operator">&apos;</span>b<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>b<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /* transform the contents and collapse it into a new value of this type */
-  let flatMap: (t(&apos;a), ~f: &apos;a =&gt; t(&apos;b)) =&gt; t(&apos;b);
-};
+  <span class="token comment" spellcheck="true">/* transform the contents and collapse it into a new value of this type */</span>
+  <span class="token keyword">let</span> flatMap<span class="token punctuation">:</span> <span class="token punctuation">(</span>t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">~</span>f<span class="token punctuation">:</span> <span class="token operator">&apos;</span>a <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>b<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>b<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <p>Briefly, a <code>Monad</code> is a <em>context</em> where we can apply functions; the <code>option</code> type
 we defined in the first section can behave as one, and so can <code>result</code>, <code>list</code>,
@@ -378,17 +378,17 @@ over a single type variable, and one for types parameterised over two type
 variables: <code>Monad.Make</code> and <code>Monad.Make2</code>. Both are necessary for the sound
 construction of the types <code>option</code> and <code>result</code> using these functors.</p>
 <p>For the <code>Monad.Make</code> functor the minimum module type could look like:</p>
-<pre><code class="lang-reason">module type Base = {
-  /* defines the type we will be working with */
-  type t(&apos;a);
+<pre class="language-"><code class="lang-reason"><span class="token keyword">module</span> <span class="token keyword">type</span> <span class="token constructor variable">Base</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token comment" spellcheck="true">/* defines the type we will be working with */</span>
+  <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /* defines how to deal with a value of such t, and a function that returns
-     another value of t */
-  let bind: (t(&apos;a), &apos;a =&gt; t(&apos;b)) =&gt; t(&apos;b);
+  <span class="token comment" spellcheck="true">/* defines how to deal with a value of such t, and a function that returns
+     another value of t */</span>
+  <span class="token keyword">let</span> bind<span class="token punctuation">:</span> <span class="token punctuation">(</span>t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&apos;</span>a <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>b<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>b<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /* defines how to construct a value of t */
-  let return: &apos;a =&gt; t(&apos;a);
-};
+  <span class="token comment" spellcheck="true">/* defines how to construct a value of t */</span>
+  <span class="token keyword">let</span> return<span class="token punctuation">:</span> <span class="token operator">&apos;</span>a <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <p>For other functors it may look differently, but still only include the absolutely
 necessary.</p>
@@ -397,51 +397,51 @@ necessary.</p>
 Operators such as <code>||</code> (boolean or) are defined such that if the former element
 is of a certain value, the latter is preferred. This can be leveraged greatly
 to succintly build very complex logic, for example:</p>
-<pre><code class="lang-reason">let is_admin = user =&gt; user.is_admin || user.id == 0 || user.name == &quot;Admin&quot;;
+<pre class="language-"><code class="lang-reason"><span class="token keyword">let</span> is_admin <span class="token operator">=</span> user <span class="token operator">=&gt;</span> user<span class="token punctuation">.</span>is_admin <span class="token operator">|</span><span class="token operator">|</span> user<span class="token punctuation">.</span>id <span class="token operator">==</span> <span class="token number">0</span> <span class="token operator">|</span><span class="token operator">|</span> user<span class="token punctuation">.</span>name <span class="token operator">==</span> <span class="token string">&quot;Admin&quot;</span><span class="token punctuation">;</span>
 </code></pre>
 <p>In a similar fashion, if we needed to provide <em>fallbacks</em> to certain <em>absent</em> values
 represented with the <code>option(&apos;a)</code> type, we need to do unpack them to deal with
 with <em>absent</em> case:</p>
-<pre><code class="lang-reason">let do_search : string =&gt; option(user);
+<pre class="language-"><code class="lang-reason"><span class="token keyword">let</span> do_search <span class="token punctuation">:</span> string <span class="token operator">=&gt;</span> option<span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-let default_user = { name: &quot;Admin&quot; };
+<span class="token keyword">let</span> default_user <span class="token operator">=</span> <span class="token punctuation">{</span> name<span class="token punctuation">:</span> <span class="token string">&quot;Admin&quot;</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-let search = name =&gt; {
-  let result = do_search(name);
-  switch(result) {
-  | Some(user) =&gt; user
-  | None =&gt; do_other_search(name) |. Option.getWithDefault(default_user)
-  }
-};
+<span class="token keyword">let</span> search <span class="token operator">=</span> name <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">let</span> result <span class="token operator">=</span> do_search<span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">switch</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token operator">|</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> user
+  <span class="token operator">|</span> <span class="token constructor variable">None</span> <span class="token operator">=&gt;</span> do_other_search<span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token operator">|</span><span class="token punctuation">.</span> <span class="token class-name">Option</span><span class="token punctuation">.</span>getWithDefault<span class="token punctuation">(</span>default_user<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
-<p>Which lacks the ergonomics of a <code>&lt;|&gt;</code> operator or an <code>orElse</code> function that would allow for:</p>
-<pre><code class="lang-reason">let search = name =&gt;
-  do_search(name)
-  |. orElse(do_other_search)
-  |. orElse(do_yet_another_search)
-  |. orElse(Some(default_user))
+<p>Which lacks the ergonomics of a <code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>|</span><span class="token punctuation">&gt;</span></span></code> operator or an <code>orElse</code> function that would allow for:</p>
+<pre class="language-"><code class="lang-reason"><span class="token keyword">let</span> search <span class="token operator">=</span> name <span class="token operator">=&gt;</span>
+  do_search<span class="token punctuation">(</span>name<span class="token punctuation">)</span>
+  <span class="token operator">|</span><span class="token punctuation">.</span> orElse<span class="token punctuation">(</span>do_other_search<span class="token punctuation">)</span>
+  <span class="token operator">|</span><span class="token punctuation">.</span> orElse<span class="token punctuation">(</span>do_yet_another_search<span class="token punctuation">)</span>
+  <span class="token operator">|</span><span class="token punctuation">.</span> orElse<span class="token punctuation">(</span><span class="token constructor variable">Some</span><span class="token punctuation">(</span>default_user<span class="token punctuation">)</span><span class="token punctuation">)</span>
 </code></pre>
 <p>The full signature of the <code>Alternative</code> module is:</p>
-<pre><code class="lang-reason">module S = {
-  /* the type we will be providing an alternative for */
-  type t(&apos;a);
+<pre class="language-"><code class="lang-reason"><span class="token keyword">module</span> <span class="token constructor variable">S</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token comment" spellcheck="true">/* the type we will be providing an alternative for */</span>
+  <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /* the function that given two of these values will pick one */
-  let orElse : t(&apos;a) =&gt; t(&apos;a) =&gt; t(&apos;a);
-}
+  <span class="token comment" spellcheck="true">/* the function that given two of these values will pick one */</span>
+  <span class="token keyword">let</span> orElse <span class="token punctuation">:</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
 </code></pre>
 <p>And an implementation for <code>Option</code> could be:</p>
-<pre><code class="lang-reason">/* belt_Option */
-open Belt.Interfaces;
+<pre class="language-"><code class="lang-reason"><span class="token comment" spellcheck="true">/* belt_Option */</span>
+<span class="token keyword">open</span> <span class="token class-name">Belt</span><span class="token punctuation">.</span><span class="token constructor variable">Interfaces</span><span class="token punctuation">;</span>
 
-include Alternative.Make({
-  type t(&apos;a) = option(&apos;a);
-  let orElse = (a, b) =&gt;
-    switch(a) {
-      | Some(_) =&gt; a  /* if the first parameter has a value, return it */
-      | None =&gt; b     /* if the first parameter has no value, return the second */
-    };
-});
+<span class="token keyword">include</span> <span class="token class-name">Alternative</span><span class="token punctuation">.</span><span class="token constructor variable">Make</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span> <span class="token operator">=</span> option<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">let</span> orElse <span class="token operator">=</span> <span class="token punctuation">(</span>a<span class="token punctuation">,</span> b<span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+    <span class="token keyword">switch</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token operator">|</span> <span class="token constructor variable">Some</span><span class="token punctuation">(</span>_<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> a  <span class="token comment" spellcheck="true">/* if the first parameter has a value, return it */</span>
+      <span class="token operator">|</span> <span class="token constructor variable">None</span> <span class="token operator">=&gt;</span> b     <span class="token comment" spellcheck="true">/* if the first parameter has no value, return the second */</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>This of course can also be implemented for any type.</p>
 <h3 id="the-foldable-interface-and-functor">The Foldable Interface and Functor</h3>
@@ -460,34 +460,34 @@ cases.</p>
 <p>Informally speaking, we want to <em>fold</em> over a particular datatype, and this is a
 very common and useful abstraction to have.</p>
 <p>The full signature of the <code>Foldable</code> interface looks like:</p>
-<pre><code class="lang-reason">module S = {
-  /* the type we are expected to workw with */
-  type t(&apos;a);
+<pre class="language-"><code class="lang-reason"><span class="token keyword">module</span> <span class="token constructor variable">S</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token comment" spellcheck="true">/* the type we are expected to workw with */</span>
+  <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /* the function that does the folding, it expects:
+  <span class="token comment" spellcheck="true">/* the function that does the folding, it expects:
       * a value t(&apos;b) that will be folded
       * an initial value ~init
-      * a function ~f that will decide what to do given t(&apos;b) and ~init */
-  let fold_left:  (t(&apos;a), ~f=&apos;(&apos;a, &apos;b) =&gt; &apos;a, ~init=&apos;a) =&gt; &apos;a;  
-};
+      * a function ~f that will decide what to do given t(&apos;b) and ~init */</span>
+  <span class="token keyword">let</span> fold_left<span class="token punctuation">:</span>  <span class="token punctuation">(</span>t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">~</span>f<span class="token operator">=</span><span class="token character string">&apos;(&apos;</span>a<span class="token punctuation">,</span> <span class="token operator">&apos;</span>b<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token operator">&apos;</span>a<span class="token punctuation">,</span> <span class="token operator">~</span>init<span class="token operator">=</span><span class="token operator">&apos;</span>a<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token operator">&apos;</span>a<span class="token punctuation">;</span>  
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <p>More comprehensive versions of this interface (and perhaps more lawful ones)
 can be provided, but might not be necessary.</p>
 <p>An example usage of it for the type <code>result(&apos;a, &apos;b)</code> would be:</p>
-<pre><code class="lang-reason">/* belt_Result.ml */
-open Belt.Interfaces;
+<pre class="language-"><code class="lang-reason"><span class="token comment" spellcheck="true">/* belt_Result.ml */</span>
+<span class="token keyword">open</span> <span class="token class-name">Belt</span><span class="token punctuation">.</span><span class="token constructor variable">Interfaces</span><span class="token punctuation">;</span>
 
-include Foldable.Make2({
-  /* define the type we will be working with */
-  type t(&apos;a, &apos;b) = result(&apos;a, &apos;b);
+<span class="token keyword">include</span> <span class="token class-name">Foldable</span><span class="token punctuation">.</span><span class="token constructor variable">Make2</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token comment" spellcheck="true">/* define the type we will be working with */</span>
+  <span class="token keyword">type</span> t<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">,</span> <span class="token operator">&apos;</span>b<span class="token punctuation">)</span> <span class="token operator">=</span> result<span class="token punctuation">(</span><span class="token operator">&apos;</span>a<span class="token punctuation">,</span> <span class="token operator">&apos;</span>b<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  /* define the behavior of `fold_left` */
-  let fold_left = (value, ~f, ~init) =&gt;
-    switch(value) {
-    | Ok(_) =&gt; f(value, init)   /* if we have some value, use f to compute the result */
-    | Error(_) =&gt; init          /* if we have an error, return the init value instead */
-    }
-});
+  <span class="token comment" spellcheck="true">/* define the behavior of `fold_left` */</span>
+  <span class="token keyword">let</span> fold_left <span class="token operator">=</span> <span class="token punctuation">(</span>value<span class="token punctuation">,</span> <span class="token operator">~</span>f<span class="token punctuation">,</span> <span class="token operator">~</span>init<span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+    <span class="token keyword">switch</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token operator">|</span> <span class="token constructor variable">Ok</span><span class="token punctuation">(</span>_<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> f<span class="token punctuation">(</span>value<span class="token punctuation">,</span> init<span class="token punctuation">)</span>   <span class="token comment" spellcheck="true">/* if we have some value, use f to compute the result */</span>
+    <span class="token operator">|</span> <span class="token constructor variable">Error</span><span class="token punctuation">(</span>_<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> init          <span class="token comment" spellcheck="true">/* if we have an error, return the init value instead */</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <h3 id="performance-considerations">Performance Considerations</h3>
 <p>After brief experimentation, it appears that the compiler will inline the functor
@@ -578,7 +578,7 @@ the ones proposed here?</li>
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"0001 – Standard Library Interfaces","level":"2.1","depth":1,"previous":{"title":"RFC Template","level":"1.2","depth":1,"path":"0000-template.md","ref":"0000-template.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"text/0001-standard-library-interfaces.md","mtime":"2018-06-26T21:44:15.756Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-06-28T06:47:08.478Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"0001 – Standard Library Interfaces","level":"2.1","depth":1,"previous":{"title":"RFC Template","level":"1.2","depth":1,"path":"0000-template.md","ref":"0000-template.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["prism","-highlight"],"pluginsConfig":{"prism":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"text/0001-standard-library-interfaces.md","mtime":"2018-06-26T21:44:15.756Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-06-28T07:11:51.113Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
