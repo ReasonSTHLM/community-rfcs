@@ -1,0 +1,617 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>0001 – Standard Library Interfaces · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    
+    <link rel="prev" href="../0000-template.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../0000-template.html">
+            
+                <a href="../0000-template.html">
+            
+                    
+                    RFC Template
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">RFCs</li>
+        
+        
+    
+        <li class="chapter active" data-level="2.1" data-path="0001-standard-library-interfaces.html">
+            
+                <a href="0001-standard-library-interfaces.html">
+            
+                    
+                    0001 – Standard Library Interfaces
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >0001 – Standard Library Interfaces</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <ul>
+<li>Feature Name: belt-monads</li>
+<li>Start Date: 2018-05-26</li>
+<li>Issue/PR: <a href="https://github.com/BuckleScript/bucklescript/pull/2843" target="_blank">https://github.com/BuckleScript/bucklescript/pull/2843</a> </li>
+</ul>
+<h1 id="summary">Summary</h1>
+<h1 id="motivation">Motivation</h1>
+<p>As the BuckleScript/ReasonML ecosystem grows through library contributions,
+which are evident by introduction of the Redex package registry, it&apos;s
+impossible to overlook that we are lacking common abstractions when several
+libraries are reimplementing them.</p>
+<p>Some of these libraries are:</p>
+<ul>
+<li><code>Belt.Option</code> from <a href="https://github.com/BuckleScript/bucklescript/blob/master/jscomp/others/belt_Option.ml#L30-L46" target="_blank">Belt</a></li>
+<li><code>Belt.Result</code> from <a href="https://github.com/BuckleScript/bucklescript/blob/master/jscomp/others/belt_Result.ml#L33-L49" target="_blank">Belt</a></li>
+<li><code>Future</code> from <a href="https://github.com/RationalJS/future/blob/master/src/Future.re#L28-L37" target="_blank">reason-future</a></li>
+<li><code>Effect</code> and <code>Affect</code> from <a href="https://github.com/Risto-Stevcev/bs-effects/blob/master/src/Effect.re#L18-L36" target="_blank">bs-effects</a></li>
+<li><code>Stream</code> from <a href="https://gitlab.com/scull7/bs-highland/blob/master/src/Highland.re#L29" target="_blank">bs-highland</a></li>
+</ul>
+<p>The expected outcome of this RFC is to arrive at a collection of common
+interfaces to be included in BuckleScript&apos;s standard library, Belt, to allow for
+a consistent and coherent ecosystem of libraries to grow.</p>
+<h1 id="guide-level-explanation">Guide-level explanation</h1>
+<blockquote>
+<p><strong>Disclaimer</strong>: this section explains how to use the proposed functors as if
+they did already existed in the library, and expects no knowledge of them or
+the concepts they embody.</p>
+</blockquote>
+<p>Say we have an <code>option</code> type defined, allowing us to represent the <em>presence</em> or
+the <em>absence</em> of a value.</p>
+<pre><code class="lang-reason">type option(&apos;a) =
+  | Some(&apos;a)
+  | None;
+</code></pre>
+<p>A value such as <code>Some(1)</code>, of type <code>option(int)</code>, will represent the <em>presence</em>
+of some number, such as 1. A value of type <code>None</code>, of type <code>option(int)</code> in this
+case, will represent the <em>absence</em> of a number.</p>
+<p>In order to manipulate the contents of an <code>option(&apos;a)</code> value, we can use the
+<code>switch</code> operator:</p>
+<pre><code class="lang-reason">let add_1 = x =&gt;
+  switch(x) {
+  | Some(y) =&gt; y + 1
+  };
+</code></pre>
+<p>As we started defining the function above, everything looked great. Until the
+compiler warned us that we were missing <em>branches</em> in that switch. We missed a
+the <code>None</code> constructor!</p>
+<p>So we go back an add it:</p>
+<pre><code class="lang-reason">let add_1 = x =&gt;
+  switch(x) {
+  | Some(y) =&gt; y + 1   
+  | None =&gt; ??? + 1
+  }
+</code></pre>
+<p>But we realize that we have nothing to add 1 to! We could simply return <code>0</code> but
+that would be misleading, since callind <code>maybe_add_1(Some(-1))</code> would also
+return <code>0</code>.</p>
+<p>Perhaps we want to simply add 1 if there is <em>some</em> number, and if there isn&apos;t
+one we just say that we didn&apos;t get any number.</p>
+<pre><code class="lang-reason">let maybe_add_1 = x =&gt;
+  switch(x) {
+  | Some(x) =&gt; Some(x + 1) /* if there is a number, add 1 to it */
+  | None =&gt; None           /* if there isn&apos;t a number, simply return none */
+  };
+</code></pre>
+<p>This idiom is quite common, and we use it quite frequently with types that are
+used as <em>containers</em>. That is, types that simply hold some data in them.</p>
+<p>Let&apos;s make it more reusable so we can reuse it for a function that will take 1
+from a number: <code>substract_1</code></p>
+<pre><code class="lang-reason">let maybe_run_f_on_contents = (f, x) =&gt;
+  switch(x) {
+  | Some(y) =&gt; Some(f(y))
+  | None =&gt; None 
+  };
+</code></pre>
+<p>Great! Now we can rewrite both those functions as:</p>
+<pre><code class="lang-reason">let maybe_add_1 = maybe_run_f_on_contents( x =&gt; x + 1 );
+let maybe_sub_1 = maybe_run_f_on_contents( x =&gt; x - 1 );
+</code></pre>
+<p>Much cleaner. </p>
+<p>The truth is that this pattern is so common that it even has a name. It&apos;s name
+is <code>map</code>, and we have seen this function on Lists or Arrays (which are
+containers for more than one value).</p>
+<p>But what if we had that <code>map</code> function that works on our <code>option(&apos;a)</code> type? We
+then would not need to go about <code>switch</code>ing or implementing it ourselves, which
+we need to do for every new type, so easy to make mistakes! We&apos;re only human
+after all.</p>
+<p>If we open the <code>Belt.Interfaces</code> module, then we have access to <em>functors</em>
+that help us build modules so that they are always type-safe, well-behaved, and
+can be optimized by the compiler.</p>
+<p>Let&apos;s try one of them, the <code>Monad.Make</code> functor.</p>
+<pre><code class="lang-reason">open Belt.Interfaces
+
+module Option = {
+  type option(&apos;a) =
+    | Some(&apos;a)
+    | None;
+
+  include Monad.Make(
+      {
+        type t(&apos;a) = option(&apos;a);
+
+        let return = x =&gt; Some(x); /* teach the functor how to create a value
+                                      of your type */
+
+        let bind = (o, f) =&gt;       /* and teach it what to do with a function */
+          switch (o) {             /* that uses the current contents but will */
+          | None =&gt; None           /* return another value of your type       */
+          | Some(x) =&gt; f(x)
+          };
+      },
+    ): Monad.S with type t(&apos;a) := option(&apos;a);
+}; 
+
+let maybe_add_1 = Option.map( x =&gt; x + 1 );
+let maybe_sub_1 = Option.map( x =&gt; x - 1 );
+</code></pre>
+<p>Ahh, even better!</p>
+<p>Now that this type we created works just like one from the standard library,we 
+can share it with other people and they can expect it to be well-behaved and
+soundly typed too! </p>
+<h1 id="reference-level-explanation">Reference-level explanation</h1>
+<p>The reference implementation code was proposed in <a href="https://github.com/BuckleScript/bucklescript/pull/2843" target="_blank">PR #2843: [Proposal] Belt
+Monads</a>. What follows
+is a refined proposal of the ideas and code included there.</p>
+<h3 id="the-interfaces-module">The Interfaces Module</h3>
+<p>We begin by defining a module of common interfaces, <code>Belt.Interfaces</code>, that will
+re-export a set of <em>functors</em> that allow for quickly and safely constructing
+modules.</p>
+<pre><code class="lang-reason">/* file belt_Interfaces.ml */ 
+
+module Monad = Belt_Monad;
+module Alternative = Belt_Alternative;
+/* the way we include and re-export these modules is subject to change */
+</code></pre>
+<p>This will allow developers to quickly <code>open Belt.Interfaces</code> and have access to 
+a collection of useful abstractions.</p>
+<p>In order to optimize for developer experience without compromising on
+type-safety, each module will define <code>module type</code> that will include the
+absolute minimum necessary information needed to construct the full module, and
+a <code>Make</code> functor that will take as an input that minimum module, and will create
+an instance for the indicated type(s).</p>
+<p>Sample module skeleton:</p>
+<pre><code class="lang-reason">module type Base = {
+  /* the absolutely minimum module required to create an instance of this interface */
+  type t(&apos;a);
+};
+
+module type S = {
+  /* the complete interface that will be created from the Base module */
+  type t(&apos;a);
+};
+
+module Make = (M: Base): S =&gt; {
+  /* the functor that will create an instance of S from a Base module */ 
+  type t(&apos;a) = M.t(&apos;a);
+};
+</code></pre>
+<h3 id="the-monad-interface-and-functor">The Monad Interface and Functor</h3>
+<p>As part of this proposal, a set of very common functions including <code>map</code> and
+<code>flatMap</code>, are presented under the name of <code>Monad</code>. Full signature below:</p>
+<pre><code class="lang-reason">module type S = {
+  /*
+    Canonical names, which can certainly be dropped in favor of the user-friendly
+    ones.
+   */
+
+  /* create a value of this type */
+  let return: &apos;a =&gt; t(&apos;a);
+
+  /* transform the contents and collapse it into a new value of this type */
+  let bind: (t(&apos;a), &apos;a =&gt; t(&apos;b)) =&gt; t(&apos;b);
+
+  /* collapse a value that is wrapped twice, such as Some(Some(1)) into Some(1) */
+  let join: t(t(&apos;a)) =&gt; t(&apos;a);
+
+  /*
+     User-friendly named operations
+   */
+
+  /* create a value of this type: Option.of(1) */
+  let of: &apos;a =&gt; t(&apos;a);
+
+  /* apply ~f to the value in this type */
+  let map: (t(&apos;a), ~f: &apos;a =&gt; &apos;b) =&gt; t(&apos;b);
+
+  /* transform the contents and collapse it into a new value of this type */
+  let flatMap: (t(&apos;a), ~f: &apos;a =&gt; t(&apos;b)) =&gt; t(&apos;b);
+};
+</code></pre>
+<p>Briefly, a <code>Monad</code> is a <em>context</em> where we can apply functions; the <code>option</code> type
+we defined in the first section can behave as one, and so can <code>result</code>, <code>list</code>,
+<code>array</code> (for convenience), <code>stream</code>, and <code>future</code>/<code>promise</code>.</p>
+<p>This means that a big number of incredibly commonplace datatypes can benefit of
+soundly-typed functions that are automatically built for them.</p>
+<p>The initially proposed set of <em>functors</em> includes one for types parameterised
+over a single type variable, and one for types parameterised over two type
+variables: <code>Monad.Make</code> and <code>Monad.Make2</code>. Both are necessary for the sound
+construction of the types <code>option</code> and <code>result</code> using these functors.</p>
+<p>For the <code>Monad.Make</code> functor the minimum module type could look like:</p>
+<pre><code class="lang-reason">module type Base = {
+  /* defines the type we will be working with */
+  type t(&apos;a);
+
+  /* defines how to deal with a value of such t, and a function that returns
+     another value of t */
+  let bind: (t(&apos;a), &apos;a =&gt; t(&apos;b)) =&gt; t(&apos;b);
+
+  /* defines how to construct a value of t */
+  let return: &apos;a =&gt; t(&apos;a);
+};
+</code></pre>
+<p>For other functors it may look differently, but still only include the absolutely
+necessary.</p>
+<h3 id="the-alternative-interface-and-functor">The Alternative Interface and Functor</h3>
+<p>Representing alternatives between values is fairly common in programming.
+Operators such as <code>||</code> (boolean or) are defined such that if the former element
+is of a certain value, the latter is preferred. This can be leveraged greatly
+to succintly build very complex logic, for example:</p>
+<pre><code class="lang-reason">let is_admin = user =&gt; user.is_admin || user.id == 0 || user.name == &quot;Admin&quot;;
+</code></pre>
+<p>In a similar fashion, if we needed to provide <em>fallbacks</em> to certain <em>absent</em> values
+represented with the <code>option(&apos;a)</code> type, we need to do unpack them to deal with
+with <em>absent</em> case:</p>
+<pre><code class="lang-reason">let do_search : string =&gt; option(user);
+
+let default_user = { name: &quot;Admin&quot; };
+
+let search = name =&gt; {
+  let result = do_search(name);
+  switch(result) {
+  | Some(user) =&gt; user
+  | None =&gt; do_other_search(name) |. Option.getWithDefault(default_user)
+  }
+};
+</code></pre>
+<p>Which lacks the ergonomics of a <code>&lt;|&gt;</code> operator or an <code>orElse</code> function that would allow for:</p>
+<pre><code class="lang-reason">let search = name =&gt;
+  do_search(name)
+  |. orElse(do_other_search)
+  |. orElse(do_yet_another_search)
+  |. orElse(Some(default_user))
+</code></pre>
+<p>The full signature of the <code>Alternative</code> module is:</p>
+<pre><code class="lang-reason">module S = {
+  /* the type we will be providing an alternative for */
+  type t(&apos;a);
+
+  /* the function that given two of these values will pick one */
+  let orElse : t(&apos;a) =&gt; t(&apos;a) =&gt; t(&apos;a);
+}
+</code></pre>
+<p>And an implementation for <code>Option</code> could be:</p>
+<pre><code class="lang-reason">/* belt_Option */
+open Belt.Interfaces;
+
+include Alternative.Make({
+  type t(&apos;a) = option(&apos;a);
+  let orElse = (a, b) =&gt;
+    switch(a) {
+      | Some(_) =&gt; a  /* if the first parameter has a value, return it */
+      | None =&gt; b     /* if the first parameter has no value, return the second */
+    };
+});
+</code></pre>
+<p>This of course can also be implemented for any type.</p>
+<h3 id="the-foldable-interface-and-functor">The Foldable Interface and Functor</h3>
+<p>Fairly often we find ourselves in situations where we want to extract a final
+value of a computation, considering all the possible outcomes.</p>
+<p>For a <code>list(int)</code> we may want to extract a single integer representing the sum
+of all the elements in the list, with an empty list returning 0. Which we commonly
+know in Javascript as <code>reduce</code> (albeit it behaves slightly differently).</p>
+<p>For a <code>result(auth_level, error)</code> we may want to always extract an <code>auth_level</code>
+even when there has been an error.</p>
+<p>For an <code>option(user)</code> we may want to fallback to a predefined <code>guest</code> user when
+there is no user.</p>
+<p>In all of these cases, we want to consider all possible constructors available
+for a given type, and come up with a single value, of the same type in all
+cases.</p>
+<p>Informally speaking, we want to <em>fold</em> over a particular datatype, and this is a
+very common and useful abstraction to have.</p>
+<p>The full signature of the <code>Foldable</code> interface looks like:</p>
+<pre><code class="lang-reason">module S = {
+  /* the type we are expected to workw with */
+  type t(&apos;a);
+
+  /* the function that does the folding, it expects:
+      * a value t(&apos;b) that will be folded
+      * an initial value ~init
+      * a function ~f that will decide what to do given t(&apos;b) and ~init */
+  let fold_left:  (t(&apos;a), ~f=&apos;(&apos;a, &apos;b) =&gt; &apos;a, ~init=&apos;a) =&gt; &apos;a;  
+};
+</code></pre>
+<p>More comprehensive versions of this interface (and perhaps more lawful ones)
+can be provided, but might not be necessary.</p>
+<p>An example usage of it for the type <code>result(&apos;a, &apos;b)</code> would be:</p>
+<pre><code class="lang-reason">/* belt_Result.ml */
+open Belt.Interfaces;
+
+include Foldable.Make2({
+  /* define the type we will be working with */
+  type t(&apos;a, &apos;b) = result(&apos;a, &apos;b);
+
+  /* define the behavior of `fold_left` */
+  let fold_left = (value, ~f, ~init) =&gt;
+    switch(value) {
+    | Ok(_) =&gt; f(value, init)   /* if we have some value, use f to compute the result */
+    | Error(_) =&gt; init          /* if we have an error, return the init value instead */
+    }
+});
+</code></pre>
+<h3 id="performance-considerations">Performance Considerations</h3>
+<p>After brief experimentation, it appears that the compiler will inline the functor
+calls if they are happening in the same module. </p>
+<p>Using functors in separate files will lead to an additional function
+application when first loading the modules themselves.</p>
+<p>However, while this does incur in the cost of creating the module at <em>runtime</em>,
+it should only occur <em>once per module</em> and only <em>on load time of such module</em>.</p>
+<p>While it does not look like it could be a problem, measuring the initialization
+time could be of interest.</p>
+<h1 id="drawbacks">Drawbacks</h1>
+<p>If we don&apos;t pick a level of abstraction carefully, we may raise the entry bar
+significantly for people that want to collaborate in Belt, and who want to
+produce modules that are well-behaved and idiomatic.</p>
+<p>This applies both to extensive use of categorical structures, such as splitting
+interfaces hierarchichally (that is, <code>Monad.Make</code> being a composed functor that
+will underneath use <code>Functor.Make</code> and <code>Applicative.Make</code>), and to exhaustive
+collections Java-style interfaces (such as <code>Iterable</code>, <code>Iterator</code>, <code>Collection</code>,
+<code>Collector</code>, etc).</p>
+<h1 id="rationale-and-alternatives">Rationale and alternatives</h1>
+<ul>
+<li>Let library authors manually and only optionally adhere to certain type
+signatures  for their work, allowing someone to reimplement <code>flatMap</code> in a
+completely unexpected and inconsistent way.</li>
+<li>Let library authors invoke a third party dependency to provide this
+interfaces at arbitrary levels of granularity, some perhaps extensively
+categorical, some others not.</li>
+</ul>
+<h1 id="prior-art">Prior art</h1>
+<p>Interfaces in particular have been around for quite some time, and are a proven way of 
+ensuring consistency, but also a great way of conveying <em>intent</em>.</p>
+<p>Functional programming languages in particular have opted for categorical
+structures such as Monads to provide sound, rigid, and powerful interfaces on
+which to build common data types that make programming a more predictable task.</p>
+<p>Languages such as Haskell, Idris, Scala, include in their standard libraries a
+rich collection of interfaces modelled in a similar fashion as the ones
+proposed here, with the difference that they are perhaps more involved in the
+granularity they offer.</p>
+<p>Libraries such as Javascript&apos;s RxJS, Fantasy-Land, or FolkTale have succeeded
+in reusing these several of these abstractions to construct incredibly useful
+tools for developers to leverage on a daily basis.</p>
+<p>A lesson to be learned from the above is that going deep down the rabbit hole
+(or rather high up the ivory tower) has in the past being tied to difficulty of
+adoption. Thus, I&apos;d like to see us make very pragmatic choices with little to
+no compromise on type-safety.</p>
+<h1 id="unresolved-questions">Unresolved questions</h1>
+<ul>
+<li>What exactly are the interfaces that Belt should initially provide besides
+the ones proposed here?</li>
+<li>Can compiler optimizations be performed to always attempt to inline functor calls?</li>
+</ul>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="../0000-template.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page: RFC Template">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"0001 – Standard Library Interfaces","level":"2.1","depth":1,"previous":{"title":"RFC Template","level":"1.2","depth":1,"path":"0000-template.md","ref":"0000-template.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"text/0001-standard-library-interfaces.md","mtime":"2018-06-26T21:44:15.756Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-06-28T06:47:08.478Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
