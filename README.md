@@ -1,11 +1,11 @@
-# Community ReasonML/BuckleScript RFCs
+# Community RFCs for Reason and BuckleScript
 
 Many changes, including bug fixes and documentation improvements can be
 implemented and reviewed via the normal GitHub pull request workflow.
 
 Some changes though are "substantial", and it would be incredibly useful to put
 them through a bit of a design process and produce a consensus among the
-ReasonML/BuckleScript community and the development teams.
+Reason/BuckleScript community and the development teams.
 
 Hence us starting this repository, in the hopes that we can grow the platform
 and language together, with a lightweight process that can guide us along the
